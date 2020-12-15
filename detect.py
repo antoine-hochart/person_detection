@@ -54,9 +54,8 @@ def get_max_iou(box, boxes):
 yt = pytube.YouTube(URL)
 # set video name
 video_title = '_'.join(word for word in yt.title.split() if word.isalpha())
-# create video folder and set input/output file path
-if not os.path.isdir(VID_DIR):
-    os.mkdir(VID_DIR)
+# set input/output file path
+os.makedirs(VID_DIR, exist_ok=True)
 fpath_in = os.path.join(VID_DIR, video_title + '.mp4')
 fpath_out = os.path.join(VID_DIR, video_title + '_detect.mp4')
 fpath_temp = os.path.join(VID_DIR, video_title + '_temp.mp4')
