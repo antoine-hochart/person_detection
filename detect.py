@@ -106,7 +106,8 @@ for i in tqdm(range(0, len(frames), BATCH_SIZE), ascii=True):
             for frame in frames[i:i+BATCH_SIZE]]
     # inference
     outputs = model(imgs, size=max(frame_width, frame_height))
-    results += outputs.pred
+    results += outputs.pred # outputs.pred is a list of Tensors,
+                            # one for each image in imgs
 
 ######################################################################
 # OUTPUT VIDEO
@@ -120,25 +121,27 @@ print("\nDrawing boxes on video frames...")
 t0 = time()
 boxes_prev = [] # to keep track of boxes in previous frame
 for frame, preds in zip(frames, results):
+    # preds is a Tensor of size N x 6 where N is the no. of predictions
     boxes_current = [] # to save boxes of current predictions
-    for pred in preds:
-        *box, conf, cl = pred.detach().cpu().numpy()
-        box = tuple(map(int, box))
-        iou = get_max_iou(box, boxes_prev)
-        if int(cl) == 0 and (conf > CONF_THRESH or iou > IOU_THRESH):
-            boxes_current.append(box)
-            cv2.rectangle(frame, box[:2], box[2:], (0, 255, 0), 2)
-            # cv2.putText(
-            #     img=frame,
-            #     text='{:.2f}'.format(conf),
-            #     org=(box[0]+5, box[-1]-5),
-            #     fontFace=cv2.FONT_HERSHEY_PLAIN,
-            #     fontScale=1.25,
-            #     color=(0, 255, 0),
-            #     thickness=2
-            #     )
-    out.write(frame)
+    if preds is not None:
+        for pred in preds:
+            *box, conf, cl = pred.detach().cpu().numpy()
+            box = tuple(map(int, box))
+            if int(cl) == 0 and \
+                (conf > CONF_THRESH or get_max_iou(box, boxes_prev) > IOU_THRESH):
+                boxes_current.append(box)
+                cv2.rectangle(frame, box[:2], box[2:], (0, 255, 0), 2)
+                # cv2.putText(
+                #     img=frame,
+                #     text='{:.2f}'.format(conf),
+                #     org=(box[0]+5, box[-1]-5),
+                #     fontFace=cv2.FONT_HERSHEY_PLAIN,
+                #     fontScale=1.25,
+                #     color=(0, 255, 0),
+                #     thickness=2
+                #     )
     boxes_prev = boxes_current
+    out.write(frame)
 print("Done ({:.2f}s)".format(time() - t0))
 out.release()
 
