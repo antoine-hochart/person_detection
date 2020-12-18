@@ -131,15 +131,8 @@ for frame, preds in zip(frames, results):
                 (conf > CONF_THRESH or get_max_iou(box, boxes_prev) > IOU_THRESH):
                 boxes_current.append(box)
                 cv2.rectangle(frame, box[:2], box[2:], (0, 255, 0), 2)
-                # cv2.putText(
-                #     img=frame,
-                #     text='{:.2f}'.format(conf),
-                #     org=(box[0]+5, box[-1]-5),
-                #     fontFace=cv2.FONT_HERSHEY_PLAIN,
-                #     fontScale=1.25,
-                #     color=(0, 255, 0),
-                #     thickness=2
-                #     )
+                # cv2.putText(frame, '{:.2f}'.format(conf), (box[0]+5, box[-1]-5),
+                #     cv2.FONT_HERSHEY_PLAIN, 1.25, (0, 255, 0), 2)
     boxes_prev = boxes_current
     out.write(frame)
 print("Done ({:.2f}s)".format(time() - t0))
