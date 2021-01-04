@@ -1,6 +1,5 @@
 # Detection of persons in a Youtube video
 
-
 <p align="center">    
     <a href='MISS_DIOR_The_new_Eau_de_Parfum_detect.mp4'>
         <img src="screenshot.png" width="50%"/>
@@ -44,6 +43,9 @@ boxes between two successive frames where a detection has been made.
 To decide whether two boxes on two different frames correspond to the same person,
 it first checks that they have a similar size, and then it selects the pair of boxes
 that yields the highest IoU scores for each pair of interpolated boxes.
+Finally, it checks that these IoU scores are above some threshold
+(to avoid interpolating boxes that are too far apart) and that the confidence level of
+at least one box is high enough (to avoid detection of false positive).
 
 The principle of the algorithm is described below,
 where `T(box)` is a box with same size but with its lower-left corner (in Cartesian coordinates)
@@ -79,7 +81,7 @@ for which the confidence level is below some threshold `eps`.
 ### Some remarks
 
 :triangular_flag_on_post:
-The above algorithm will display a box even if its confidence level is below `min_iou`
+The above algorithm will display a box even if its confidence level is below `min_IoU`
 provided a similar box with a high confidence level is detected on the previous or the next frame.
 In other words, it helps increase the sensitivity.
 
