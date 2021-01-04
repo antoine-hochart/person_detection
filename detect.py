@@ -25,11 +25,11 @@ parser.add_argument('--stride', type=int, default=1,
         help="Frame stride for the detection model.")
 parser.add_argument('--batch_size', type=int, default=1,
         help="Number of frames that the detection model process simultaneously.")
-parser.add_argument('--conf0', type=float, default=0.30,
+parser.add_argument('--eps', type=float, default=0.30,
         help="Minimum confidence score for detections.")
 parser.add_argument('--min_conf', type=float, default=0.70,
         help="Threshold for the maximum confidence level of an object across two frames.")
-parser.add_argument('--min_iou', type=float, default=0.66,
+parser.add_argument('--min_iou', type=float, default=0.67,
         help="Threshold for the IoU of bounding boxes of the same object across two frames.")
 parser.add_argument('--model', type=str, default='retinanet',
         help="Model for object detection: fasterrcnn or retinanet (default).")
@@ -46,7 +46,7 @@ URL = args.url
 WITH_GPU = args.with_gpu
 STRIDE = args.stride
 BATCH_SIZE = args.batch_size
-CONF0 = args.conf0
+EPS = args.eps
 MIN_CONF = args.min_conf
 MIN_IOU = args.min_iou
 MODEL = args.model
@@ -215,13 +215,13 @@ print("Done ({:.0f}m {:.0f}s)".format(timedelta//60, timedelta%60))
 ######################################################################
 # FILTER PREDICTIONS WITH LOW CONF SCORE
 
-print("\nRemoving predictions with a confidence score lower than {}...".format(conf0))
+print("\nRemoving predictions with a confidence score lower than {}...".format(EPS))
 t0 = time()
 
 output_boxes = []
 output_scores = []
 for outputs in results:
-    mask = (outputs['labels'] == 1) * (outputs['scores'] > CONF0)
+    mask = (outputs['labels'] == 1) * (outputs['scores'] > EPS)
     # boxes
     boxes = outputs['boxes'][mask]
     boxes = boxes.detach().cpu().numpy()
