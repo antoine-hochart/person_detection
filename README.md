@@ -81,13 +81,14 @@ for which the confidence level is below some threshold `eps`.
 ### Some remarks
 
 :triangular_flag_on_post:
-The above algorithm will display a box even if its confidence level is below `min_IoU`
+The above algorithm will display a box even if its confidence level is below `min_IoU`,
 provided a similar box with a high confidence level is detected on the previous or the next frame.
-In other words, it helps increase the sensitivity.
+In other words, it decreases the number of false negative detections (and symmetrically
+increases the number of false positives).
 
 :triangular_flag_on_post:
-On the other hand, if precision is more important, a higher rate can be achieve by setting
-`eps = min_conf = 0.5` (or any suitable value).
+On the other hand, if the primary concern is reducing the number of false positive detections,
+it is better to set `eps = min_conf = 0.5` (or any suitable value).
 
 
 ## How to run the detection
