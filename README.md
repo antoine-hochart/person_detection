@@ -22,8 +22,7 @@ generate a new video that shows the presence of humans by drawing bounding boxes
 
 1. split the video into frames;
 2. apply a detection model every _K_ frame;
-3. for each frame, interpolate the bounding boxes found by the model
-    if no detection has been run on it;
+3. for each frame where no detection has been run, interpolate the bounding boxes;
 5. draw the bounding boxes found for each frame;
 4. recombine the frames into the final video.
 
@@ -35,14 +34,14 @@ For the detection model, the script loads either __RetinaNet__ or __Faster R-CNN
 
 :point_right:
 To speed up the processing time, the detection of persons is performed on every _K_ frame,
-where _K_ can be selected by the user.
+where _K_ is a parameter chosen by the user (argument `--stride=K`).
 
 :point_right:
 To find the bounding boxes on frames where no detection is performed, the script interpolates
 boxes between two successive frames where a detection has been made.
 To decide whether two boxes on two different frames correspond to the same person,
 it first checks that they have a similar size, and then it selects the pair of boxes
-that yields the highest IoU scores for each pair of interpolated boxes.
+that yields the highest IoU scores for each pair of successive interpolated boxes.
 Finally, it checks that these IoU scores are above some threshold
 (to avoid interpolating boxes that are too far apart) and that the confidence level of
 at least one box is high enough (to avoid detection of false positive).
@@ -81,7 +80,7 @@ for which the confidence level is below some threshold `eps`.
 ### Some remarks
 
 :triangular_flag_on_post:
-The above algorithm will display a box even if its confidence level is below `min_IoU`,
+The above algorithm will display a box even if its confidence level is below `min_conf`,
 provided a similar box with a high confidence level is detected on the previous or the next frame.
 In other words, it decreases the number of false negative detections (and symmetrically
 increases the number of false positives).
@@ -93,17 +92,18 @@ it is better to set `eps = min_conf = 0.5` (or any suitable value).
 
 ## How to run the detection
 
-First, set up a python virtual environment with pytorch and torchivision
+First, set up a python virtual environment (named `env` here) with pytorch and torchivision
 (see details [here](https://pytorch.org/get-started/locally/)).
 The script has been tested with __Python==3.8__ and __Pytorch==1.7__.
 Then, install the required packages:
 ```
-python -m pip install -U -r requirements.txt
+(env)$ python -m pip install -U -r requirements.txt
 ```
 
-To generate the [output video](MISS_DIOR_The_new_Eau_de_Parfum_detect.mp4), run the script
+To generate the [output video](MISS_DIOR_The_new_Eau_de_Parfum_detect.mp4),
+activate the virtual environment and run the script
 ```
-(env)$ python detect.py --stride=4 --eps=0.3 --min_conf=0.7 --min_iou=0.66 --with_conf`
+(env)$ python detect.py --stride=4 --eps=0.3 --min_conf=0.7 --min_iou=0.66 --with_conf
 ```
 The input video is automatically downloaded in the same folder as the script `detect.py`,
 and the output video is created at the same location.
@@ -112,4 +112,5 @@ To try with another video, add `--url='https://youtu.be/<xxx>'`.
 To use the GPU, add the argument `--with_gpu` and choose an adequate batch size (say 4)
 with `--batch_size=4`.
 
-To use __Faster R-CNN__ instead if __RetinaNet__, add the argument `--model='fasterrcnn'`.
+The default detection model is __RetinaNet__.
+To use __Faster R-CNN__ instead, add the argument `--model='fasterrcnn'`.
